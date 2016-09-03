@@ -86,7 +86,9 @@ class Main implements CommandLineRunner {
 
         addressFields.each { field ->
             def matchcodedAddress = matchcoder.matchcode("$field")
-            outputFields << matchcoder.convertToString(matchcodedAddress)
+            if (matchcodedAddress) {
+                outputFields << matchcoder.convertToString(matchcodedAddress)
+            }
         }
     }
 
