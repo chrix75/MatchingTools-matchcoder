@@ -79,7 +79,7 @@ class Main implements CommandLineRunner {
         outputWriter.close()
     }
 
-    def matchcodeAddressFields(Matchcoder matchcoder, fields, addressFieldIndices, outputFields) {
+    def matchcodeAddressFields(Matchcoder<Address> matchcoder, fields, addressFieldIndices, outputFields) {
         def addressFields = addressFieldIndices.findAll { it >= 0 && it < fields.length }
                                                .collect { fields[it] }
                                                .findAll { !it.empty }
@@ -89,7 +89,24 @@ class Main implements CommandLineRunner {
             if (matchcodedAddress) {
                 outputFields << matchcoder.convertToString(matchcodedAddress)
             }
+
+            addAddressKeyWords(matchcodedAddress.name, outputFields)
         }
     }
 
+    def addAddressKeyWords(String addressName, outputFields) {
+        if (addressName) {
+            def words = addressName.split()
+            def lastWord = words[-1]
+
+            String keyValue
+            if (lastWord.size() >= 3) {
+                keyValue = lastWord[0..2]
+            } else {
+                keyValue = lastWord
+            }
+
+            outputFields << "KEY/$keyValue"
+        }
+    }
 }
