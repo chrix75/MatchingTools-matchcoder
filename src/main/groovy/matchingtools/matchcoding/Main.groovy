@@ -1,5 +1,6 @@
 package matchingtools.matchcoding
 
+import matchingtools.matchcoding.matchcoding.KeyHelper
 import matchingtools.matchcoding.matchcoding.Matchcoder
 import domain.Address
 import domain.CompanyName
@@ -11,6 +12,9 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.ComponentScan
+
+import java.util.stream.Collectors
+
 /**
  * Created by csperandio on 24/08/2016.
  */
@@ -29,15 +33,15 @@ class Main implements CommandLineRunner {
     Matchcoder<CompanyName> companyNameMatchcoder
 
     public static void main(String[] args) {
-            SpringApplication.run(Main.class, args);
+        SpringApplication.run(Main.class, args);
     }
 
     @Override
     void run(String... args) throws Exception {
         def cl = new CliBuilder(usage: 'matchcoder -a "addrFieldNumbner1",..., "addrFielNumberN"')
         cl.a(argName: 'addressList', args: 1, longOpt: 'address', 'Address field number', required: true)
-        cl.d(argName: 'delimiter', args: 1, longOpt:  'delimiter', 'Field delimiter')
-        cl.n(argName: 'companyName', args:1, longOpt: 'companyName', 'Company name field numbers', required: true)
+        cl.d(argName: 'delimiter', args: 1, longOpt: 'delimiter', 'Field delimiter')
+        cl.n(argName: 'companyName', args: 1, longOpt: 'companyName', 'Company name field numbers', required: true)
 
         def opt = cl.parse(args)
 
@@ -50,8 +54,8 @@ class Main implements CommandLineRunner {
 
         def (outputFile, inputFile) = opt.arguments().collect { new File(it) }
         def fieldDelimiter = opt.d ?: ';'
-        def addressFieldIndices = opt.a.split(',').collect { Integer.parseInt(it) - 1}
-        def companyNameFieldIndices = opt.n.split(',').collect { Integer.parseInt(it) - 1}
+        def addressFieldIndices = opt.a.split(',').collect { Integer.parseInt(it) - 1 }
+        def companyNameFieldIndices = opt.n.split(',').collect { Integer.parseInt(it) - 1 }
 
         logger.info("Input filename: $inputFile")
         logger.info("Output filename: $outputFile")
@@ -69,7 +73,7 @@ class Main implements CommandLineRunner {
             def outputFields = fields as List
 
             matchcodeAddressFields(addressMatchcoder, fields, addressFieldIndices, outputFields)
-            matchcodeAddressFields(companyNameMatchcoder, fields, companyNameFieldIndices, outputFields)
+            matchcodeNameFields(companyNameMatchcoder, fields, companyNameFieldIndices, outputFields)
 
             outputWriter.write("${outputFields.join(";")}\n")
         }
@@ -90,23 +94,24 @@ class Main implements CommandLineRunner {
                 outputFields << matchcoder.convertToString(matchcodedAddress)
             }
 
-            addAddressKeyWords(matchcodedAddress.name, outputFields)
+            KeyHelper.addAddressKeyWords(matchcodedAddress.name, outputFields)
         }
     }
 
-    def addAddressKeyWords(String addressName, outputFields) {
-        if (addressName) {
-            def words = addressName.split()
-            def lastWord = words[-1]
+    def matchcodeNameFields(Matchcoder<CompanyName> matchcoder, fields, fieldIndices, outputFields) {
+        def nameFields = fieldIndices.findAll { it >= 0 && it < fields.length }
+                                               .collect { fields[it] }
+                                               .findAll { !it.empty }
 
-            String keyValue
-            if (lastWord.size() >= 3) {
-                keyValue = lastWord[0..2]
-            } else {
-                keyValue = lastWord
+        nameFields.each { field ->
+            def matchcodedName = matchcoder.matchcode("$field")
+            if (matchcodedName) {
+                outputFields << matchcoder.convertToString(matchcodedName)
             }
 
-            outputFields << "KEY/$keyValue"
+            if (!matchcodedName.isService) {
+                KeyHelper.addNameKeyWords(matchcodedName.wordsName, outputFields)
+            }
         }
     }
 }

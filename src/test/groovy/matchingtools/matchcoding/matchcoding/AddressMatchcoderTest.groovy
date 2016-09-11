@@ -107,6 +107,4 @@ class AddressMatchcoderTest extends GroovyTestCase {
 
         assertNull(address)
     }
-
-
 }
