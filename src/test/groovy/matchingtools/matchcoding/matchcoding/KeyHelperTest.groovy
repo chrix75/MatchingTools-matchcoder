@@ -19,7 +19,7 @@ public class KeyHelperTest {
     @Test
     public void addNameKeyWords() throws Exception {
         def keys = []
-        KeyHelper.addNameKeyWords("POUR LE TOTAL STATION GO SA SARL", keys)
+        KeyHelper.addNameKeyWords("POUR LE TOTAL STATION GO SA SARL".tokenize(), keys)
         assert ["KNA/TOT", "KNA/STA", "KNA/GO"] == keys
     }
 

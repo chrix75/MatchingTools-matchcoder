@@ -38,7 +38,7 @@ class Main implements CommandLineRunner {
 
     @Override
     void run(String... args) throws Exception {
-        def cl = new CliBuilder(usage: 'matchcoder -a "addrFieldNumbner1",..., "addrFielNumberN"')
+        def cl = new CliBuilder(usage: 'matchcoder -a "addrFieldNumbner1",..., "addrFielNumberN" -n x,y output input')
         cl.a(argName: 'addressList', args: 1, longOpt: 'address', 'Address field number', required: true)
         cl.d(argName: 'delimiter', args: 1, longOpt: 'delimiter', 'Field delimiter')
         cl.n(argName: 'companyName', args: 1, longOpt: 'companyName', 'Company name field numbers', required: true)

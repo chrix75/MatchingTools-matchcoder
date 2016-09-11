@@ -27,9 +27,8 @@ class KeyHelper {
         }
     }
 
-    static def addNameKeyWords(String name, outputFields) {
-        if (name) {
-            def words = name.tokenize()
+    static def addNameKeyWords(List<String> words, outputFields) {
+        if (words) {
             def keys = words.stream()
                             .filter { it.length() > 1 && !INVALID_KEY_WORDS.contains(it) }
                             .map { w -> w.length() > 3 ? w[0..2] : w }
