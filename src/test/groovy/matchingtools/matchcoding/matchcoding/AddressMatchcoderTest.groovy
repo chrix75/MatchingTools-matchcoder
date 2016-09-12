@@ -107,4 +107,15 @@ class AddressMatchcoderTest extends GroovyTestCase {
 
         assertNull(address)
     }
+
+    void testmatchcode_9() {
+        def matchcoder = new AddressMatchcoder()
+        def addressLabel = "44 EN CHAPLERUE"
+
+        Address address = matchcoder.matchcode(addressLabel)
+
+        assertEquals(44, address.number)
+        assertEquals("EN CHAPLERUE", address.name)
+
+    }
 }
